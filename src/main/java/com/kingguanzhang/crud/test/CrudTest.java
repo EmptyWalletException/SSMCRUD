@@ -13,7 +13,7 @@ public class CrudTest {
 		 crudText.testCrud();
 
 	}
-	
+	//测试方法
 	public void testCrud() {
 		ApplicationContext ioc = new ClassPathXmlApplicationContext("applicationContext.xml");
 		DepartmentMapper departmentMapper = ioc.getBean(DepartmentMapper.class);
