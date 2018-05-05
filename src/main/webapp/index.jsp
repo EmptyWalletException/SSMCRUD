@@ -35,7 +35,11 @@
 
 	This is my JSP page.
 	<br>
+	<form name="testform">
 
+		<jsp:forward page = "/WEB-INF/views/list.jsp" />
+
+	</form>
 	<button class="btn btn-success">测试按钮</button>
 
 	<div class="dropdown">
