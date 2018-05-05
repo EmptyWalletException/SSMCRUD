@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<!-- 一些设置 -->
+	<settings>
+		<setting name="mapUnderscoreToCamelCase" value="true" />
+	</settings>
+
+	<!-- 配置别名,告诉mybatis所有的bean文件在哪里 -->
+	<typeAliases>
+		<package name="com.kingguanzhang.crud.bean" />
+	</typeAliases>
+</configuration>
