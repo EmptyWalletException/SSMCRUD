@@ -1,15 +1,10 @@
 <%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
-<%
-	String path = request.getContextPath();
-	String basePath = request.getScheme() + "://"
-			+ request.getServerName() + ":" + request.getServerPort()
-			+ path + "/";
-%>
 
+<jsp:forward page="/emps"></jsp:forward> 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-<base href="<%=basePath%>">
+
 
 <title>My JSP 'index.jsp' starting page</title>
 
@@ -35,11 +30,7 @@
 
 	This is my JSP page.
 	<br>
-	<form name="testform">
-
-		<jsp:forward page = "/WEB-INF/views/list.jsp" />
-
-	</form>
+	
 	<button class="btn btn-success">测试按钮</button>
 
 	<div class="dropdown">
@@ -49,30 +40,27 @@
 			测试下拉弹出菜单 <span class="caret"></span>
 		</button>
 		<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-			<li><a href="#">Action</a>
-			</li>
-			<li><a href="#">Another action</a>
-			</li>
-			<li><a href="#">Something else here</a>
-			</li>
+			<li><a href="#">Action</a></li>
+			<li><a href="#">Another action</a></li>
+			<li><a href="#">Something else here</a></li>
 			<li role="separator" class="divider"></li>
-			<li><a href="#">Separated link</a>
-			</li>
+			<li><a href="#">Separated link</a></li>
 		</ul>
 	</div>
-	
+
 	<div class="dropup">
-  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    Dropup
-    <span class="caret"></span>
-  </button>
-  <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
-    <li><a href="#">Action</a></li>
-    <li><a href="#">Another action</a></li>
-    <li><a href="#">Something else here</a></li>
-    <li role="separator" class="divider"></li>
-    <li><a href="#">Separated link</a></li>
-  </ul>
-</div>
+		<button class="btn btn-default dropdown-toggle" type="button"
+			id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true"
+			aria-expanded="false">
+			Dropup <span class="caret"></span>
+		</button>
+		<ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+			<li><a href="#">Action</a></li>
+			<li><a href="#">Another action</a></li>
+			<li><a href="#">Something else here</a></li>
+			<li role="separator" class="divider"></li>
+			<li><a href="#">Separated link</a></li>
+		</ul>
+	</div>
 </body>
 </html>

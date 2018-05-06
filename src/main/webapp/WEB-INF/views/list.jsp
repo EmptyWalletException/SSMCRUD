@@ -1,6 +1,7 @@
-<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
-
-
+<%@ page language="java" contentType="text/html; charset=utf-8"
+    pageEncoding="utf-8"%>
+  
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
@@ -10,11 +11,7 @@
 
 <title>list</title>
 
-<meta http-equiv="pragma" content="no-cache">
-<meta http-equiv="cache-control" content="no-cache">
-<meta http-equiv="expires" content="0">
-<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
-<meta http-equiv="description" content="This is my page">
+
 <!--
 	<link rel="stylesheet" type="text/css" href="styles.css">
 	-->
@@ -41,7 +38,7 @@
 		<div class="row">
 			<div class="col-md-4 col-md-offset-8">
 				<button class="btn btn-primary btn-sm">新增</button>
-				<button class="btn btn-danger btn-sm"></button>
+				<button class="btn btn-danger btn-sm">删除</button>
 			</div>
 		</div>
 		
@@ -55,19 +52,23 @@
 						<th>邮箱</th>
 						<th>部门</th>
 					</tr>
-					<tr>
-						<th>1</th>
-						<th>刘备</th>
-						<th>男</th>
-						<th>1@sanguo.com</th>
-						<th>采购部</th>
-					</tr>
+					
+					<c:forEach items="${pageInfo.list }" var="emp">
+						<tr>
+							<th>${emp.empId }</th>
+							<th>${emp.empName }</th>
+							<th>${emp.empGender=="M"?"男":"女" }</th>
+							<th>${emp.empEmail }</th>
+							<th>${emp.department.deptName }</th>
+						</tr>
+					</c:forEach>
 				</table>
 			</div>
 		</div>
 		
 		<div class="row">
 			<div class="col-md-6">
+				查询页数
 			</div>
 			
 			<div class="col-md-6">

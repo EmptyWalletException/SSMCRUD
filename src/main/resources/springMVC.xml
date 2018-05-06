@@ -14,10 +14,8 @@
    <!--springMVC用于 配置所有网站跳转逻辑的控制 -->
     
     <!-- 开启扫描包,spring与springMVC互补,springMVC只扫描controller,而spring除了controller其它的都扫描 -->
-    <context:component-scan base-package="com.kingguangzhang" use-default-filters="false">
-    	<!-- 只需要扫描控制器 ,所以配置一个include exprission里配置一个controller注解的真实名字,同时在上面一行禁用掉默认规则-->
-    	<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
-    </context:component-scan>
+    <!-- 这个包名写错过一次导致页面跳转一直404,然后调了一上午的BUG!!!!! -->
+    <context:component-scan base-package="com.kingguanzhang.crud.controller" ></context:component-scan>
     
     <!-- 视图解析器 用于页面路径定位视图-->
     <bean
