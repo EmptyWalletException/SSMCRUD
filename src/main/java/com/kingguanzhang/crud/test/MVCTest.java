@@ -1,7 +1,5 @@
 package com.kingguanzhang.crud.test;
 
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +14,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.kingguanzhang.crud.bean.Employee;
+import com.github.pagehelper.PageInfo;
 
 /**
  * 用于测试能否从数据库中完成分页查询;
@@ -52,7 +50,7 @@ public class MVCTest {
 		MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/emps").param("pn", "1")).andReturn();
 //		假设此时请求成给,则请求域中会有pageInfo,取出来看一下即可;
 		MockHttpServletRequest request = result.getRequest();
-		 Object pageInfo = request.getAttribute("pageInfo");
+		PageInfo pageInfo = (PageInfo) request.getAttribute("pageInfo");
 		 System.out.println(pageInfo.toString());
 //		
 //		List<Employee> list = pageInfo.getList();

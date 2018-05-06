@@ -68,29 +68,47 @@
 		
 		<div class="row">
 			<div class="col-md-6">
-				查询页数
+				 当前第${pageInfo.pageNum }/${pageInfo.pages }页,当前页记录数:${pageInfo.size }条;总记录数:${pageInfo.total }条;
 			</div>
 			
 			<div class="col-md-6">
 				<nav aria-label="Page navigation">
 					  <ul class="pagination">
-					  	  <li><a href="#">首页</a></li>
+					  
+					     <!-- 首页 -->
+					  	  <li><a href="${APP_PATH }/emps?pn=1">首页</a></li>
+					  	  
+					  	  <!-- 前一页 -->
+					  	<c:if test="${pageInfo.hasPreviousPage }">
+						    <li>
+						      <a href="${APP_PATH }/emps?pn=${pageInfo.prePage}" aria-label="Previous">
+						        <span aria-hidden="true">&laquo;</span>
+						      </a>
+						    </li>
+					    </c:if>
+					    
+					    <!-- 分页条上显示的12345页码 -->
+					    <c:forEach items="${pageInfo.navigatepageNums }" var="ngpn">
+					    	<c:if test="${ngpn == pageInfo.pageNum }">
+						    	<li class="active"><a href="${APP_PATH }/emps?pn=${ngpn}" >${ngpn }</a></li>
+						    </c:if>
+						    <c:if test="${ngpn != pageInfo.pageNum }">
+						    	<li ><a href="${APP_PATH }/emps?pn=${ngpn}" >${ngpn }</a></li>
+						    </c:if>
+					    </c:forEach>
+					    
+					    <!-- 下一页 -->
+					    <c:if test="${pageInfo.hasNextPage }">
 					    <li>
-					      <a href="#" aria-label="Previous">
-					        <span aria-hidden="true">&laquo;</span>
-					      </a>
-					    </li>
-					    <li><a href="#">1</a></li>
-					    <li><a href="#">2</a></li>
-					    <li><a href="#">3</a></li>
-					    <li><a href="#">4</a></li>
-					    <li><a href="#">5</a></li>
-					    <li>
-					      <a href="#" aria-label="Next">
+					      <a href="${APP_PATH }/emps?pn=${pageInfo.nextPage}" aria-label="Next">
 					        <span aria-hidden="true">&raquo;</span>
 					      </a>
 					    </li>
-					      <li><a href="#">末页</a></li>
+					    </c:if>
+					    
+					    <!-- 最后一页 -->
+					      <li><a href="${APP_PATH }/emps?pn=${pageInfo.pages}">末页</a></li>
+					      
 					  </ul>
 				</nav>
 			</div>
