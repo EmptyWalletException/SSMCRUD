@@ -1,10 +1,17 @@
 package com.kingguanzhang.crud.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -54,5 +61,51 @@ public class EmployeeController {
 //		查询之后使用PageInfo来包装,方便在页面视图中处理页码,下面用的构造器第二个参数是页面底部可供点击的连续页码数;
 		PageInfo page = new PageInfo(emps,5);
 		return Msg.success().add("pageInfo", page);
+	}
+	
+	/**
+	 * 新增用户;
+	 * @Valid注解表示封装Employee数据时使用JSR303进行数据的正则校验;
+	 * @param employee
+	 * @return
+	 */
+	@RequestMapping(value="/emps",method=RequestMethod.POST)
+	@ResponseBody
+	public Msg save(@Valid Employee employee,BindingResult result) {
+//		判断数据是否能通过正则校验
+		if(result.hasErrors()) {
+			List<FieldError> errors = result.getFieldErrors();
+			Map<String,Object> map = new HashMap<String, Object>();
+			for(FieldError fieldError:errors) {
+//				将所有的错误信息遍历后放入map中返回给前端;
+				map.put(fieldError.getField(), fieldError.getDefaultMessage());
+			}
+			return Msg.fail().add("fieldMsg", map);
+		}else {
+			employeeService.save(employee);
+			return Msg.success();
+		}
+	}
+	
+	/**
+	 * 校验用户名是否不重复;
+	 * @param employee
+	 * @return 
+	 */
+	@RequestMapping(value="/checkEmp",method=RequestMethod.POST)
+	@ResponseBody
+	public Msg checkEmp(@RequestParam("empName")String employee) {
+//		在ajax请求数据库之前,应该在后台模仿一下前端输入框的校验逻辑,才能让双重校验达到更加好的配合;
+		String regName = "(^[a-z0-9_-]{2,10}$)|(^[\\u2E80-\\u9FFF]{2,10})";
+		if(!employee.matches(regName)) {
+			return Msg.fail().add("validateMsg", "用户名格式不正确,请输入2~10位字符,只能出现数字或英文或汉字的组合!");
+		}
+		
+		boolean bool = employeeService.checkEmp(employee);
+		if(true == bool){
+			return Msg.success().add("validateMsg", "用户名可以使用");
+		}else {
+			return Msg.fail().add("validateMsg", "用户名已经被别人抢先占用");
+		}
 	}
 }

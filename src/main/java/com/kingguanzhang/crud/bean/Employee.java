@@ -1,10 +1,17 @@
 package com.kingguanzhang.crud.bean;
 
+import javax.validation.constraints.Pattern;
+
+import org.junit.runners.Parameterized.Parameter;
+
 public class Employee {
     private Integer empId;
-
+    
+//    使用正则表达式校验员工名字字符是否合法;
+    @Pattern(regexp="(^[a-z0-9_-]{2,10}$)|(^[\\u2E80-\\u9FFF]{2,10})",message="用户名格式不正确,请输入2~10位字符,只能出现数字或英文或汉字的组合!")
     private String empName;
 
+    @Pattern(regexp="^([a-z0-9_\\.-]+)@([\\da-z\\.-]+)\\.([a-z\\.]{2,6})$",message="邮箱格式不正确")
     private String empEmail;
 
     private String empGender;
