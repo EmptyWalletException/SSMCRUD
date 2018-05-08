@@ -26,7 +26,7 @@
 
 <body>
 
-	<!-- 模态框样式 -->
+	<!-- 添加员工的模态框 -->
 	<div class="modal fade" id="modal_add" tabindex="-1" role="dialog">
 	  <div class="modal-dialog" role="document">
 	    <div class="modal-content">
@@ -90,6 +90,75 @@
 	    </div><!-- /.modal-content -->
 	  </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+
+
+	<!-- 编辑员工的模态框 -->
+	<div class="modal fade" id="modal_edit" tabindex="-1" role="dialog">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h3 class="modal-title">编辑员工</h3>
+	      </div>
+	      <div class="modal-body">
+	       		 <form class="form-horizontal" id="modal_edit_form">
+	       		 	
+	       		 	  <!-- 姓名Id提示,禁用框 -->
+					  <div class="form-group">
+					    <label for="editName" class="col-sm-2 control-label">员工编号</label>
+					    <div class="col-sm-10">
+					      <input type="text" class="form-control" id="editID" placeholder="员工编号无法修改" disabled>
+					      <span id="helpBlock0" class="help-block"></span>
+					    </div>
+					  </div>
+	       		 	  <!-- 姓名输入框 -->
+					  <div class="form-group">
+					    <label for="editName" class="col-sm-2 control-label">员工姓名</label>
+					    <div class="col-sm-10">
+					      <input type="text" class="form-control" name="empName" id="editName" placeholder="输入姓名">
+					      <span id="helpBlock1" class="help-block"></span>
+					    </div>
+					  </div>
+					  <!-- 邮箱输入框 -->
+					  <div class="form-group">
+					    <label for="editEmail" class="col-sm-2 control-label">员工邮箱</label>
+					    <div class="col-sm-10">
+					      <input type="text" class="form-control" name="empEmail" id="editEmail" placeholder="输入邮箱">
+					      <span id="helpBlock2" class="help-block"></span>
+					    </div>
+					  </div>
+					  <!-- 姓名选择的单选框 -->
+				  	  <div class="form-group">
+					    <label for="radio" class="col-sm-2 control-label">选择性别</label>
+					    	<div class="col-sm-10">
+							  <label class="radio-inline">
+							  		<input type="radio" name="empGender" id="inlineRadio3" value="M"> 男
+							  </label>
+							  <label class="radio-inline">
+									  <input type="radio" name="empGender" id="inlineRadio4" value="W"> 女
+							  </label>
+						    </div>
+					  </div>
+					  <!-- 部门选择的下拉框 -->
+					  <div class="form-group">
+					    <label for="dept_edit_select" class="col-sm-2 control-label">选择部门</label>
+					    <div class="col-sm-4">
+							  <select class="form-control" name="empDeptId" id="depts_edit_select">
+								  <!-- 通过解析后台返回的json数据来动态插入option -->
+							  </select>
+						</div>
+					  </div>
+				</form>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+	        <button type="button" class="btn btn-primary" id="update_button">更新</button>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+	
+	<!-- 网页主体框架 -->
 	
 	<br>
 	<div class="container">
@@ -148,6 +217,7 @@
 		
 	/* 定义一个全局变量用于记录末页的页码,服务于页面自动跳转到最后一页 */
 		var maxPage;
+		var currentPage;
 		$(function(){
 			to_page(1);
 		});
@@ -162,7 +232,8 @@
 					build_emps_table(result);
 					build_page_info(result);
 					build_page_nav(result);
-					maxPage = result.extend.pageInfo.pages
+					maxPage = result.extend.pageInfo.pages;
+					currentPage = result.extend.pageInfo.pageNum;
 				}
 			});
 		}
@@ -182,9 +253,9 @@
 					/* <button class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-plus"></span>新增</button>
 				<button class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-trash"></span>删除</button> */
 					var span_edit = $("<span></span>").addClass("glyphicon glyphicon-pencil");
-					var button_edit = $("<button></button>").addClass("btn btn-primary btn-sm").append(span_edit).append(" 编辑");
+					var button_edit = $("<button></button>").addClass("btn btn-primary btn-sm edit_button").attr("empId",item.empId).append(span_edit).append(" 编辑");
 					var span_del = $("<span></span>").addClass("glyphicon glyphicon-trash");
-					var button_del = $("<button></button>").addClass("btn btn-danger btn-sm").append(span_del).append(" 删除");
+					var button_del = $("<button></button>").addClass("btn btn-danger btn-sm delet_button").attr("empId",item.empId).append(span_del).append(" 删除");
 					var button_td = $("<td></td>").append(button_edit).append(" ").append(button_del);
 					
 					$("<tr></tr>").append(empId).append(empName).append(empGender).append(empEmail).append(empDept).append(button_td).appendTo("#emp_table tbody");
@@ -282,26 +353,96 @@
 			$(ele).find("*").removeClass("has-error has-success");
 			$(ele).find(".help-block").text("");
 		}
-		/*模态框 */
+		
+		/*弹出添加员工模态框 */
 		$("#button_add").click(function(){
 		/* 点击新增按钮将会发送一个ajax请求从数据库取出部门列表,将部门数据插入新增员工的模态框中,然后弹出这个模态框, */
-			getDepts();
-			
+			getDepts("#depts_select");
 			init_form("#modal_form");
 			$('#modal_add').modal({
 				backdrop:'static'
 			});
 		});
 		
-		/* 查询出所有员工 */
-		function getDepts(){
+		/*弹出修改员工模态框 */
+		$(document).on("click",".edit_button",function(){
+			getEmp($(this).attr("empId"));
+			getDepts("#depts_edit_select");
+			$("#update_button").attr("empId",$(this).attr("empId"));
+			
+			init_form("#modal_edit_form");
+			$('#modal_edit').modal({
+				backdrop:'static'
+			});
+		});
+		
+		
+		/* 查询单个员工的信息 */
+		function getEmp(empId){
+			$.ajax({
+				url:"${APP_PATH}/emp/"+empId,
+				type:"GET",
+				success:function(result){
+					$("#editID").val(result.extend.emp.empId);
+					$("#editName").val(result.extend.emp.empName);
+					$("#editEmail").val(result.extend.emp.empEmail);
+					$("#modal_edit_form input[name=empGender]").val([result.extend.emp.empGender]);
+					$("#modal_edit_form delect").val([result.extend.emp.empDeptId]);
+				}
+			});
+			
+		}
+		
+		//TODO/* 更新按钮点击后保存 */
+		/* 更新按钮点击后保存 */
+		 $("#update_button").click(function(){ 
+			
+			 /* 检查输入框是否符合正则表达式 */
+	 		 if(!validatInput("#editName","#update_button","#editEmail")){
+				return false;	
+			} 
+			 
+			/* 这里不能检查用户名的重复性,因为员工可能不想修改名字*/
+		 	 
+			
+		 var ser_form = $("#modal_edit_form").serialize(); 
+			//alert(ser_form);
+		 	$.ajax({
+				url:"${APP_PATH}/emp"+$(this).attr("empId"),
+				type:"POST",
+				data:ser_form+"&_method=PUT",
+				success:function(result){
+					alert(result.msg); 
+					/* 这里要检查一下后端是否返回了错误报告信息 */
+				 	if(100 == result.code){
+						$("#modal_edit").modal("hide"); 
+						/* 自动跳转到当前页,分页插件会自动将超出的页码替换为最后一页,这里其实传入一个超大的数也可以,但是那样的做法不够档次 */
+					 	to_page(currentPage);
+					}else{ 
+						/* console.log(result); */
+						/* 判断从后台返回的错误字段是哪个,如果有,则显示错误信息 */
+						 if(undefined != result.extend.fieldMsg.empName ){
+							showValidateInfo("#editName","error",result.extend.fieldMsg.empName);
+						}
+						
+						if(undefined != result.extend.fieldMsg.empEmail){
+							showValidateInfo("#editEmail","error",result.extend.fieldMsg.empEmail);
+						}
+					}
+				}
+			});  
+			
+		});
+		
+		/* 查询出所有部门,并添加进选择器中 */
+		function getDepts(ele){
 			$.ajax({
 				url:"${APP_PATH}/depts",
-				type:"get",
+				type:"GET",
 				success:function(result){
 				//	console.log(result);
 				//	<option>1</option>
-						var depts_select = $("#depts_select");
+						var depts_select = $(ele);
 						depts_select.empty();
 					$.each(result.extend.depts, function(index,dept){
 						depts_select.append($("<option></option>").attr("value",dept.deptId).append(dept.deptName));
@@ -310,32 +451,32 @@
 			});
 		}
 		
-		/* 输入框的前端校验 */
-		function validatInput(){
+		/* 抽取出来的输入框的前端校验 */
+		function validatInput(nameEle,ajaxEle,emailEle){
 			/* 验证用户名  /^[a-z0-9_-]{3,16}$/  */
-			var inputName = $("#inputName").val();
+			var inputName = $(nameEle).val();
 			var regName = /(^[a-z0-9_-]{2,10}$)|(^[\u2E80-\u9FFF]{2,10})/;
 			//alert(!regName.test(inputName));
 
 			/* 先检查ajax校验用户名的结果,ajax通过后再进一步检查*/
-			if($("#submit_button").attr("ajaxCheckEmpName") != "error"){
+			if($(ajaxEle).attr("ajaxCheckEmpName") != "error"){
 				if(!regName.test(inputName)){
 					//alert("用户名格式不正确,请输入2~10位字符,只能出现数字或英文或汉字的组合!");
-					showValidateInfo("#inputName","error","用户名格式不正确,请输入2~10位字符,只能出现数字或英文或汉字的组合!");
+					showValidateInfo(nameEle,"error","用户名格式不正确,请输入2~10位字符,只能出现数字或英文或汉字的组合!");
 				}else{
-					showValidateInfo("#inputName","ok","");
+					showValidateInfo(nameEle,"ok","");
 				}
 			}
 			
 			
 			/* 验证邮箱 */
-			var inputEmail = $("#inputEmail").val();
+			var inputEmail = $(emailEle).val();
 			var regEmail = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/;
 			if(!regEmail.test(inputEmail)){
 				//alert("邮箱格式不正确!");
-				showValidateInfo("#inputEmail","error","邮箱格式不正确");
+				showValidateInfo(emailEle,"error","邮箱格式不正确");
 			}else{
-				showValidateInfo("#inputEmail","ok","");
+				showValidateInfo(emailEle,"ok","");
 			}
 			
 			if(!regName.test(inputName) || !regEmail.test(inputEmail)){
@@ -344,7 +485,7 @@
 			return true;
 		}
 		
-		/* 输入框的后端校验,目前只校验用户名 */
+		/* 新增模态框中输入框的后端校验,目前只校验用户名 */
 		$("#inputName").change(function(){
 			var inputEmpName = this.value;
 			$.ajax({
@@ -363,6 +504,7 @@
 			});
 		});
 		
+		
 		/* 显示校验信息 */
 		function showValidateInfo(ele,status,msg){
 			
@@ -376,11 +518,12 @@
 				$(ele).next("span").text(msg);
 			}
 		}
+		
 		/* 提交按钮点击后保存 */
 		$("#submit_button").click(function(){
 			
 			/* 检查输入框是否符合正则表达式 */
-			 if(!validatInput()){
+			 if(!validatInput("#inputName","#submit_button","#inputEmail")){
 				return false;	
 			} 
 			
@@ -398,14 +541,14 @@
 				success:function(result){
 					alert(result.msg);
 					/* 这里要检查一下后端是否返回了错误报告信息 */
-					if(100 == result.msg){
+					if(100 == result.code){
 						$("#modal_add").modal("hide");
 						/* 自动跳转到最后一页,分页插件会自动将超出的页码替换为最后一页,这里其实传入一个超大的数也可以,但是那样的做法不够档次 */
 						to_page(maxPage + 1);
 					}else{
 						/* console.log(result); */
 						/* 判断从后台返回的错误字段是哪个,如果有,则显示错误信息 */
-						if(undefined != result.extend.fieldMsg.empName ){
+						if(undefined != result.extend.fieldMsg.empName){
 							showValidateInfo("#inputName","error",result.extend.fieldMsg.empName);
 						}
 						

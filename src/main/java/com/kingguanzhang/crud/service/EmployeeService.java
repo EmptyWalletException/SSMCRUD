@@ -47,4 +47,13 @@ public class EmployeeService {
 		return 0 == count;
 		
 	}
+
+	public Employee getEmp(Integer empId) {
+		Employee employee = employeeMapper.selectByPrimaryKeyWithDept(empId);
+		return employee;
+	}
+
+	public void updateEmp(Employee employee) {
+		long i = employeeMapper.updateByPrimaryKey(employee);
+	}
 }

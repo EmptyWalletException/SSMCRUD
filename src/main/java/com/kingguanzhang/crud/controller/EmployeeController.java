@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -64,6 +65,17 @@ public class EmployeeController {
 	}
 	
 	/**
+	 * 查询单个员工的信息;
+	 * @return
+	 */
+	@RequestMapping(value="/emp/{empId}",method=RequestMethod.GET)
+	@ResponseBody
+	public Msg getEmpWithJson(@PathVariable(value="empId")Integer empId) {
+		Employee emp = employeeService.getEmp(empId);
+		return Msg.success().add("emp", emp);
+	}
+	
+	/**
 	 * 新增用户;
 	 * @Valid注解表示封装Employee数据时使用JSR303进行数据的正则校验;
 	 * @param employee
@@ -106,6 +118,31 @@ public class EmployeeController {
 			return Msg.success().add("validateMsg", "用户名可以使用");
 		}else {
 			return Msg.fail().add("validateMsg", "用户名已经被别人抢先占用");
+		}
+	}
+	
+	/**
+	 * 更新用户;
+	 * @Valid注解表示封装Employee数据时使用JSR303进行数据的正则校验;
+	 * @param employee
+	 * @return
+	 */
+	@RequestMapping(value="/emp{empId}",method=RequestMethod.PUT)
+	@ResponseBody
+	public Msg updateEmp(@Valid Employee employee,BindingResult result) {
+//		判断数据是否能通过正则校验
+		if(result.hasErrors()) {
+			List<FieldError> errors = result.getFieldErrors();
+			Map<String,Object> map = new HashMap<String, Object>();
+			for(FieldError fieldError:errors) {
+//				将所有的错误信息遍历后放入map中返回给前端;
+				map.put(fieldError.getField(), fieldError.getDefaultMessage());
+			}
+			return Msg.fail().add("fieldMsg", map);
+		}else {
+//			真正的更新方法只有这一行
+			employeeService.updateEmp(employee);
+			return Msg.success();
 		}
 	}
 }
