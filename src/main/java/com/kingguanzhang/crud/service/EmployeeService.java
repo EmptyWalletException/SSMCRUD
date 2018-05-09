@@ -47,13 +47,43 @@ public class EmployeeService {
 		return 0 == count;
 		
 	}
-
+	
+	/**
+	 * 通过ID查出员工的详细信息;
+	 * @param empId
+	 * @return
+	 */
 	public Employee getEmp(Integer empId) {
 		Employee employee = employeeMapper.selectByPrimaryKeyWithDept(empId);
 		return employee;
 	}
 
+	/**
+	 * 修改员工
+	 * @param employee
+	 */
 	public void updateEmp(Employee employee) {
 		long i = employeeMapper.updateByPrimaryKey(employee);
 	}
+
+	/**
+	 * 删除员工
+	 * @param empId
+	 */
+	public void deleteEmp(String empId) {
+		int id = Integer.parseInt(empId);
+		long i = employeeMapper.deleteByPrimaryKey(id);
+	}
+
+	/**
+	 * 批量删除员工
+	 * @param example
+	 */
+	public void deleteEmps(List<Integer> listIds) {
+		EmployeeExample example = new EmployeeExample();
+		Criteria criteria = example.createCriteria();
+		criteria.andEmpIdIn(listIds);
+		int i = employeeMapper.deleteByExample(example);
+	}
+
 }

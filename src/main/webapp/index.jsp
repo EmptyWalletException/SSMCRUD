@@ -170,8 +170,8 @@
 		
 		<div class="row">
 			<div class="col-md-4 col-md-offset-8">
-				<button class="btn btn-primary btn-sm" id="button_add"><span class="glyphicon glyphicon-plus"></span> 新增</button>
-				<button class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-trash"></span> 删除</button>
+				<button class="btn btn-primary btn-sm" id="button_add"><span class="glyphicon glyphicon-plus"></span> 新增员工</button>
+				<button class="btn btn-danger btn-sm" disabled="disabled" id="button_delete_batch"><span class="glyphicon glyphicon-trash"></span> 批量删除</button>
 			</div>
 		</div>
 		
@@ -180,6 +180,7 @@
 				<table class="table table-hover" id="emp_table">
 					<thead>
 						<tr>
+							<th><input type="checkbox" class="check_all"/> 全选</th>
 							<th>编号</th>
 							<th>姓名</th>
 							<th>性别</th>
@@ -220,6 +221,7 @@
 		var currentPage;
 		$(function(){
 			to_page(1);
+			
 		});
 
 		/* 抽取出来的跳转到指定页码页面的方法 */
@@ -234,16 +236,21 @@
 					build_page_nav(result);
 					maxPage = result.extend.pageInfo.pages;
 					currentPage = result.extend.pageInfo.pageNum;
+					/* 重新检查页面上需要发生状态改变的按钮,以免逻辑性bug */
+					changeAllCheckedButton();
+					changeBatchDeleteButton();
 				}
 			});
 		}
+		
 		/* 遍历并插入每一行员工信息数据 */
 		function build_emps_table(result){
 				/* 生成新的元素前一定要先清空掉以前的数据,否则会累加到页面上 */
 				$("#emp_table tbody").empty();
 				var emps = result.extend.pageInfo.list;
 				$.each(emps,function(index,item){
-					
+					var checkBox = $("<input></input>").attr("type","checkbox").addClass("check_one");
+					var checkBoxs = $("<td></td>").append(checkBox).append(" ");
 					var empId = $("<td></td>").append(item.empId);
 					var empName = $("<td></td>").append(item.empName);
 					var empGender = $("<td></td>").append(item.empGender=="M"?"男":"女");
@@ -255,10 +262,10 @@
 					var span_edit = $("<span></span>").addClass("glyphicon glyphicon-pencil");
 					var button_edit = $("<button></button>").addClass("btn btn-primary btn-sm edit_button").attr("empId",item.empId).append(span_edit).append(" 编辑");
 					var span_del = $("<span></span>").addClass("glyphicon glyphicon-trash");
-					var button_del = $("<button></button>").addClass("btn btn-danger btn-sm delet_button").attr("empId",item.empId).append(span_del).append(" 删除");
+					var button_del = $("<button></button>").addClass("btn btn-danger btn-sm delet_button").attr("empId",item.empId).attr("empName",item.empName).append(span_del).append(" 删除");
 					var button_td = $("<td></td>").append(button_edit).append(" ").append(button_del);
 					
-					$("<tr></tr>").append(empId).append(empName).append(empGender).append(empEmail).append(empDept).append(button_td).appendTo("#emp_table tbody");
+					$("<tr></tr>").append(checkBoxs).append(empId).append(empName).append(empGender).append(empEmail).append(empDept).append(button_td).appendTo("#emp_table tbody");
 				});
 		}
 		
@@ -393,7 +400,6 @@
 			
 		}
 		
-		//TODO/* 更新按钮点击后保存 */
 		/* 更新按钮点击后保存 */
 		 $("#update_button").click(function(){ 
 			
@@ -408,7 +414,7 @@
 		 var ser_form = $("#modal_edit_form").serialize(); 
 			//alert(ser_form);
 		 	$.ajax({
-				url:"${APP_PATH}/emp"+$(this).attr("empId"),
+				url:"${APP_PATH}/emp/"+$(this).attr("empId"),
 				type:"POST",
 				data:ser_form+"&_method=PUT",
 				success:function(result){
@@ -559,6 +565,84 @@
 				}
 			});
 			
+		});
+		
+		/*弹出删除员工的确认框 */
+		$(document).on("click",".delet_button",function(){
+			var empId = $(this).attr("empId");
+			var empName = $(this).attr("empName");
+			if(confirm("确定要删除编号:"+empId+",姓名:"+empName+"的员工吗?")){
+				$.ajax({
+					url:"${APP_PATH}/emp/"+empId,
+					type:"POST",
+					data:"&_method=DELETE",
+					success:function(result){
+						alert(result.msg); 
+						to_page(currentPage);
+					}
+				});  
+			}
+			
+		});
+		
+		/* 用于控制页面上的批量删除按钮是否可用 ,此方法最好在页面发生任何事件时都调用一次,否则会出现逻辑bug,
+		目前只在点击选择框时和页面加载后重新检查一次*/
+		function changeBatchDeleteButton(){
+			var checked_length = $(".check_one:checked").length;
+			var checkBox_length = $(".check_one").length;
+			if(0 == checked_length){
+				$("#button_delete_batch").prop("disabled","disabled");
+			}else{
+				$("#button_delete_batch").prop("disabled","");
+			}
+		}
+		
+		/* 用于控制全选按钮是否被勾选 ,此方法最好在页面发生任何事件时都调用一次,否则会出现逻辑bug,
+		目前只在点击选择框时和页面加载后重新检查一次*/
+		function changeAllCheckedButton(){
+			var checked_length = $(".check_one:checked").length;
+			var checkBox_length = $(".check_one").length;
+			if(checkBox_length == checked_length){
+				$(".check_all").prop("checked","checked");
+			}else{
+				$(".check_all").prop("checked","");
+			}
+		}
+		
+		/* 全选和全不选的功能 */
+		$(".check_all").click(function(){
+			/* .attr()方法只能适用用自定义的值,prop方法适用于原生的属性 */
+			$(".check_one").prop("checked",$(this).prop("checked"));
+			changeBatchDeleteButton();
+		});
+		
+		/* 当检测到手动点满所有单个选择按钮时,则自动勾选上全选按钮 */
+		$(document).on("click",".check_one",function(){
+			/* .check_one:checked 是一类筛选器,筛选所有属性值有checked的check_one元素   .length代表筛选出来的个数*/
+			/* 检查选中的个数是否等于页面上所有选择框的总数 */
+			changeBatchDeleteButton();
+			changeAllCheckedButton();
+		});
+		
+		/*弹出批量删除员工的确认框 */
+		$(document).on("click","#button_delete_batch",function(){
+			/* 注意这里的变量初始化时一定要设置为空字符,否则就会是默认保存了一个undefined */
+			var empIds = "";
+			$.each($(".check_one:checked"),function(){
+				 empIds += $(this).parents("tr").find("td:eq(1)").text()+",";
+			});
+			empIds = empIds.substring(0,empIds.length-1);
+			if(confirm("确定要删除选中的所有员工吗?")){
+				$.ajax({
+					url:"${APP_PATH}/emp/"+empIds,
+					type:"POST",
+					data:"&_method=DELETE",
+					success:function(result){
+						alert(result.msg); 
+						to_page(currentPage);
+					}
+				});  
+			}
 		});
 	</script>
 </body>

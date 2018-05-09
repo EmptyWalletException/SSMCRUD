@@ -1,5 +1,6 @@
 package com.kingguanzhang.crud.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -127,7 +128,7 @@ public class EmployeeController {
 	 * @param employee
 	 * @return
 	 */
-	@RequestMapping(value="/emp{empId}",method=RequestMethod.PUT)
+	@RequestMapping(value="/emp/{empId}",method=RequestMethod.PUT)
 	@ResponseBody
 	public Msg updateEmp(@Valid Employee employee,BindingResult result) {
 //		判断数据是否能通过正则校验
@@ -144,5 +145,36 @@ public class EmployeeController {
 			employeeService.updateEmp(employee);
 			return Msg.success();
 		}
+	}
+	
+	/**此方法废弃,已经被整合进批量删除员工的方法中;
+	 * 删除单个员工的信息;
+	 * @return
+	 */
+//	@RequestMapping(value="/emp/{empId}",method=RequestMethod.DELETE)
+//	@ResponseBody
+//	public Msg deleteEmp(@PathVariable(value="empId")Integer empId) {
+//		 employeeService.deleteEmp(empId);
+//		return Msg.success();
+//	}
+	
+	/**
+	 * 批量删除员工的信息;
+	 * @return
+	 */
+	@RequestMapping(value="/emp/{empIds}",method=RequestMethod.DELETE)
+	@ResponseBody
+	public Msg deleteEmp(@PathVariable(value="empIds")String empIds) {
+		if(empIds.contains(",")) {
+			List<Integer> listIds = new ArrayList();
+			String[] arrayIds = empIds.split(",");
+			for(String id:arrayIds) {
+				listIds.add(Integer.parseInt(id));
+			}
+			employeeService.deleteEmps(listIds);
+		}else {
+			employeeService.deleteEmp(empIds);
+		}
+		return Msg.success();
 	}
 }
